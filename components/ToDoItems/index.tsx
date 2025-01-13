@@ -1,12 +1,13 @@
 import { Button, Container } from "@mantine/core";
+import { ToDo } from "types";
 
 export interface ToDoItemsInterface {
-  items: string[];
-  onDelete?: (item: string) => void;
+  todos: ToDo[];
+  onDelete?: (id: string) => void;
 }
 
-export function ToDoItems({ items, onDelete }: ToDoItemsInterface) {
-  if (!items.length)
+export function ToDoItems({ todos, onDelete }: ToDoItemsInterface) {
+  if (!todos.length)
     return (
       <p className="text-gray-500 text-center mt-4">No items to display</p>
     );
@@ -17,16 +18,16 @@ export function ToDoItems({ items, onDelete }: ToDoItemsInterface) {
         To-Do List
       </h2>
       <ul className="space-y-4">
-        {items.map((item, index) => (
+        {todos.map((todo, index) => (
           <li
-            key={`${item}${index}`}
+            key={`${todo.name}${index}`}
             className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
           >
-            <span className="text-gray-700 font-medium">{item}</span>
+            <span className="text-gray-700 font-medium">{todo.name}</span>
             <Button
               unstyled
               className="bg-red-500 text-white px-3 py-1.5 rounded-md hover:bg-red-600 transition-colors"
-              onClick={() => onDelete?.(item)}
+              onClick={() => onDelete?.(todo.id)}
             >
               Delete
             </Button>

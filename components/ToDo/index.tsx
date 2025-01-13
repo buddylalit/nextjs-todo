@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { AddItem } from "../AddItem";
 import { ToDoItems } from "../ToDoItems";
 import { Container, TextInput } from "@mantine/core";
+import { ToDo as ToDoType } from "types";
 
 export function ToDo() {
-  const [toDoItems, setToDoItems] = useState<string[]>([]);
+  const [toDoItems, setToDoItems] = useState<ToDoType[]>([]);
   const [searchText, setSearchText] = useState("");
-  const [filteredToDoItem, setFilteredItems] = useState<string[]>([]);
+  const [filteredToDoItems, setFilteredItems] = useState<ToDoType[]>([]);
   const isApiMocking =
     (process.env.NEXT_PUBLIC_ENABLE_API_MOCKING || "") === "true";
 
@@ -18,52 +19,54 @@ export function ToDo() {
     if (!isApiMocking) return;
     try {
       const response = await fetch("https://codebuddy.co/todos");
-      const items = await response.json();
-      setToDoItems(items);
-      setFilteredItems(items);
+      const data = await response.json();
+      setToDoItems(data);
+      setFilteredItems(data);
     } catch (error) {
       console.error("Error fetching items:", error);
     }
   }
 
   async function handleAddItem(item: string) {
-    const toDoItem = toDoItems.find((i) => i === item);
-    if (toDoItem) {
-      return alert(`item ${item} already available`);
+    if (toDoItems.some((i) => i.name === item)) {
+      return alert(`Item "${item}" already exists.`);
     }
+
     if (!isApiMocking) {
-      return setToDoItems((prev) => {
-        const _items = [...prev, item];
-        setFilteredItems(_items);
-        return _items;
+      const newItem = { id: `${toDoItems.length + 1}`, name: item };
+      setToDoItems((prev) => {
+        const updatedItems = [...prev, newItem];
+        setFilteredItems(updatedItems);
+        return updatedItems;
       });
+      return;
     }
+
     try {
-      await fetch("https://codebuddy.co/todos", {
+      const res = await fetch("https://codebuddy.co/todos", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          todo: item,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: item, id: "" }),
       });
+      console.log("res", res);
       fetchItems();
     } catch (error) {
       console.error("Error adding item:", error);
     }
   }
 
-  async function handleDeleteItem(item: string) {
+  async function handleDeleteItem(id: string) {
     if (!isApiMocking) {
-      return setToDoItems((prev) => {
-        const _items = prev.filter((_item) => _item !== item);
-        setFilteredItems(_items);
-        return _items;
+      setToDoItems((prev) => {
+        const updatedItems = prev.filter((item) => item.id !== id);
+        setFilteredItems(updatedItems);
+        return updatedItems;
       });
+      return;
     }
+
     try {
-      await fetch(`https://codebuddy.co/todos/${item}`, {
+      await fetch(`https://codebuddy.co/todos/${id}`, {
         method: "DELETE",
       });
       fetchItems();
@@ -75,13 +78,14 @@ export function ToDo() {
   function handleFilterItems(value: string) {
     setSearchText(value);
     if (!value) {
-      return setFilteredItems(toDoItems);
+      setFilteredItems(toDoItems);
+    } else {
+      setFilteredItems(
+        toDoItems.filter((item) =>
+          item.name.toLowerCase().includes(value.toLowerCase())
+        )
+      );
     }
-    setFilteredItems(
-      toDoItems.filter((item) =>
-        item.toLowerCase().includes(value.toLowerCase())
-      )
-    );
   }
 
   return (
@@ -93,7 +97,7 @@ export function ToDo() {
         placeholder="Search"
       />
       <AddItem onAdd={handleAddItem} />
-      <ToDoItems items={filteredToDoItem} onDelete={handleDeleteItem} />
+      <ToDoItems todos={filteredToDoItems} onDelete={handleDeleteItem} />
     </Container>
   );
 }

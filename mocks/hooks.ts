@@ -10,7 +10,7 @@ function useMSWMockServer() {
       if (typeof window !== "undefined") {
         import("./browser")
           .then(async ({ worker }) => {
-            await worker.start();
+            await worker.start({});
             setShouldRender(true);
             return null;
           })
