@@ -5,7 +5,7 @@ import { TextInput, Button } from "@mantine/core";
 import { TaskFormValues } from "../../types/task";
 
 const schema = yup.object().shape({
-  id: yup.string(),
+  id: yup.string().optional(),
   title: yup.string().required("Title is required"),
   description: yup.string().required("Description is required"),
 });
@@ -22,11 +22,30 @@ export const TaskForm = ({ onSubmit, task }: TaskFormProps) => {
     formState: { errors },
   } = useForm<TaskFormValues>({
     resolver: yupResolver(schema),
-    defaultValues: task,
+    defaultValues: {
+      id: task?.id || "",
+      title: task?.title || "",
+      description: task?.description || "",
+    },
   });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {task?.id && (
+        <Controller
+          name="id"
+          control={control}
+          render={({ field }) => (
+            <TextInput
+              label="Id"
+              placeholder="Enter task title"
+              error={errors.title?.message}
+              disabled
+              {...field}
+            />
+          )}
+        />
+      )}
       <Controller
         name="title"
         control={control}

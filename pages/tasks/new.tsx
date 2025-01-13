@@ -1,12 +1,14 @@
 import { TaskForm } from "components/TaskForm";
+import { useTasks } from "context/tasks";
 import { useRouter } from "next/router";
 import { TaskFormValues } from "types/task";
 
 export default function NewTask() {
+  const { addTask } = useTasks();
   const router = useRouter();
 
   const handleSubmit = (data: TaskFormValues) => {
-    console.log("New Task Data:", data);
+    addTask(data);
     router.push("/tasks");
   };
 

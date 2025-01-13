@@ -4,6 +4,7 @@ import type { AppProps } from "next/app";
 
 import { createTheme, MantineProvider } from "@mantine/core";
 import useMSWMockServer from "mocks/hooks";
+import { TaskProvider } from "context/tasks";
 
 export default function App({ Component, pageProps }: AppProps) {
   const shouldRender = useMSWMockServer();
@@ -16,7 +17,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <MantineProvider withStaticClasses withGlobalClasses theme={theme}>
-      <Component {...pageProps} />
+      <TaskProvider>
+        <Component {...pageProps} />
+      </TaskProvider>
     </MantineProvider>
   );
 }

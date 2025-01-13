@@ -48,7 +48,6 @@ export function ToDo() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: item, id: "" }),
       });
-      console.log("res", res);
       fetchItems();
     } catch (error) {
       console.error("Error adding item:", error);

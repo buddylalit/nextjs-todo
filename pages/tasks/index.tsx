@@ -1,38 +1,10 @@
+import { useTasks } from "context/tasks";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { TaskFormValues } from "types/task";
-
-let tasks: TaskFormValues[] = [
-  { id: "1", title: "Task 1", description: "Description of Task 1" },
-  { id: "2", title: "Task 2", description: "Description of Task 2" },
-];
-
-export const getTasks = () => tasks;
-
-export const addTask = (task: TaskFormValues) => {
-  tasks.push(task);
-};
-
-export const updateTask = (updatedTask: TaskFormValues) => {
-  tasks = tasks.map((task) =>
-    task.id === updatedTask.id ? updatedTask : task
-  );
-};
-
-export const deleteTask = (id: string) => {
-  tasks = tasks.filter((task) => task.id !== id);
-};
 
 export default function Tasks() {
-  const [tasks, setTasks] = useState<TaskFormValues[]>([]);
-
-  useEffect(() => {
-    setTasks(getTasks());
-  }, []);
-
+  const { deleteTask, tasks } = useTasks();
   const handleDelete = (id: string) => {
     deleteTask(id);
-    setTasks(getTasks()); // Refresh the tasks list
   };
 
   return (
@@ -61,7 +33,7 @@ export default function Tasks() {
                 </button>
               </Link>
               <button
-                onClick={() => handleDelete(task.id)}
+                onClick={() => handleDelete(task.id!)}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               >
                 Delete
