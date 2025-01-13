@@ -12,20 +12,25 @@ export function AddItem({ onAdd }: AddItemProps) {
     onAdd?.(value);
     setValue("");
   }
+
   return (
-    <Container className="p-0">
-      <Grid className="p-0">
-        <Grid.Col span={{ base: 12, xs: 10 }}>
-          <TextInput
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder="Todo item"
-          />
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, xs: 2 }}>
-          <Button onClick={handleAddItem}>Add</Button>
-        </Grid.Col>
-      </Grid>
-    </Container>
+    <Grid>
+      <Grid.Col span={{ base: 12, xs: 11 }}>
+        <TextInput
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Todo item"
+          className="w-full"
+        />
+      </Grid.Col>
+      <Grid.Col span={{ base: 12, xs: 1 }}>
+        <Button
+          className="bg-indigo-500 text-white hover:bg-indigo-600 w-full"
+          onClick={handleAddItem}
+        >
+          Add
+        </Button>
+      </Grid.Col>
+    </Grid>
   );
 }
