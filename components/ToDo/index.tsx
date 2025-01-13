@@ -7,15 +7,15 @@ export function ToDo() {
   const [toDoItems, setToDoItems] = useState<string[]>([]);
   const [searchText, setSearchText] = useState("");
   const [filteredToDoItem, setFilteredItems] = useState<string[]>([]);
-  const isLocalAccessMethod =
-    (process.env.NEXT_PUBLIC_DATA_ACCESS_METHOD || "") === "local";
+  const isApiMocking =
+    (process.env.NEXT_PUBLIC_ENABLE_API_MOCKING || "") === "true";
 
   useEffect(() => {
     fetchItems();
   }, []);
 
   async function fetchItems() {
-    if (isLocalAccessMethod) return;
+    if (!isApiMocking) return;
     try {
       const response = await fetch("https://codebuddy.co/todos");
       const items = await response.json();
@@ -31,7 +31,7 @@ export function ToDo() {
     if (toDoItem) {
       return alert(`item ${item} already available`);
     }
-    if (isLocalAccessMethod) {
+    if (!isApiMocking) {
       return setToDoItems((prev) => {
         const _items = [...prev, item];
         setFilteredItems(_items);
@@ -55,7 +55,7 @@ export function ToDo() {
   }
 
   async function handleDeleteItem(item: string) {
-    if (isLocalAccessMethod) {
+    if (!isApiMocking) {
       return setToDoItems((prev) => {
         const _items = prev.filter((_item) => _item !== item);
         setFilteredItems(_items);
