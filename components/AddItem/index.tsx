@@ -31,10 +31,7 @@ export function AddItem({ onAdd }: AddItemProps) {
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, xs: 1 }}>
-        <Button
-          className="bg-indigo-500 text-white hover:bg-indigo-600 w-full"
-          onClick={handleAddItem}
-        >
+        <Button onClick={handleAddItem} color="teal">
           Add
         </Button>
       </Grid.Col>

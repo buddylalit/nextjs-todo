@@ -24,11 +24,7 @@ export function ToDoItems({ todos, onDelete }: ToDoItemsInterface) {
             className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
           >
             <span className="text-gray-700 font-medium">{todo.name}</span>
-            <Button
-              unstyled
-              className="bg-red-500 text-white px-3 py-1.5 rounded-md hover:bg-red-600 transition-colors"
-              onClick={() => onDelete?.(todo.id)}
-            >
+            <Button color="pink" onClick={() => onDelete?.(todo.id)}>
               Delete
             </Button>
           </li>
