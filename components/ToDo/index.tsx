@@ -89,12 +89,12 @@ export function ToDo() {
   }
 
   return (
-    <Container className="p-4 bg-gray-50 rounded-lg shadow-md max-w-md mx-auto my-2">
+    <Container className="p-6 rounded-2xl shadow-lg max-w-lg mx-auto">
       <TextInput
-        className="my-2"
         value={searchText}
         onChange={(e) => handleFilterItems(e.target.value)}
-        placeholder="Search"
+        placeholder="Search tasks"
+        className="mb-4 w-full text-gray-dark placeholder-gray-light border-gray rounded-lg"
       />
       <AddItem onAdd={handleAddItem} />
       <ToDoItems todos={filteredToDoItems} onDelete={handleDeleteItem} />

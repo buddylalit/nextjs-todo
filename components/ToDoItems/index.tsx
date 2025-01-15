@@ -9,22 +9,28 @@ export interface ToDoItemsInterface {
 export function ToDoItems({ todos, onDelete }: ToDoItemsInterface) {
   if (!todos.length)
     return (
-      <p className="text-gray-500 text-center mt-4">No items to display</p>
+      <p className="text-center text-gray-500 my-4">
+        No items found. Start by adding one!
+      </p>
     );
 
   return (
-    <Container className="p-4 bg-gray-100 rounded-lg shadow-md max-w-md mx-auto">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+    <Container className="p-4 bg-background rounded-lg shadow-lg">
+      <h2 className="text-xl font-semibold text-gray-dark text-center mb-4">
         To-Do List
       </h2>
-      <ul className="space-y-4">
+      <ul className="space-y-3">
         {todos.map((todo, index) => (
           <li
             key={`${todo.name}${index}`}
-            className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            className="flex justify-between items-center p-4 bg-gray-light rounded-lg shadow-sm hover:shadow-md transition-all"
           >
-            <span className="text-gray-700 font-medium">{todo.name}</span>
-            <Button color="pink" onClick={() => onDelete?.(todo.id)}>
+            <span className="text-gray-dark font-medium">{todo.name}</span>
+            <Button
+              // className="bg-pink-500 text-white s-lg hover:bg-pink-600 transition"
+              color="pink"
+              onClick={() => onDelete?.(todo.id)}
+            >
               Delete
             </Button>
           </li>
