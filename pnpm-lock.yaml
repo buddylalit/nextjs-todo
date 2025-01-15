@@ -14,6 +14,12 @@ importers:
       '@mantine/hooks':
         specifier: ^7.15.3
         version: 7.15.3(react@19.0.0)
+      '@tanstack/react-query':
+        specifier: ^5.64.1
+        version: 5.64.1(react@19.0.0)
+      '@tanstack/react-query-devtools':
+        specifier: ^5.64.1
+        version: 5.64.1(@tanstack/react-query@5.64.1(react@19.0.0))(react@19.0.0)
       msw:
         specifier: ^2.7.0
         version: 2.7.0(@types/node@20.17.12)(typescript@5.7.3)
@@ -415,6 +421,23 @@ packages:
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
+
+  '@tanstack/query-core@5.64.1':
+    resolution: {integrity: sha512-978Wx4Wl4UJZbmvU/rkaM9cQtXXrbhK0lsz/UZhYIbyKYA8E4LdomTwyh2GHZ4oU0BKKoDH4YlKk2VscCUgNmg==}
+
+  '@tanstack/query-devtools@5.62.16':
+    resolution: {integrity: sha512-3ff6UBJr0H3nIhfLSl9911rvKqXf0u4B58jl0uYdDWLqPk9pCvYIbxC35cGxK2+8INl4IaFVUHb/IdgWrNkg3Q==}
+
+  '@tanstack/react-query-devtools@5.64.1':
+    resolution: {integrity: sha512-8ajcGE3wXYlb4KuJnkFYkJwJKc/qmPNTpQD7YTgLRMBPTGGp1xk7VMzxL87DoXuweO8luplUUblJJ3noVs/luQ==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.64.1
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.64.1':
+    resolution: {integrity: sha512-vW5ggHpIO2Yjj44b4sB+Fd3cdnlMJppXRBJkEHvld6FXh3j5dwWJoQo7mGtKI2RbSFyiyu/PhGAy0+Vv5ev9Eg==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
@@ -2336,6 +2359,21 @@ snapshots:
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
+
+  '@tanstack/query-core@5.64.1': {}
+
+  '@tanstack/query-devtools@5.62.16': {}
+
+  '@tanstack/react-query-devtools@5.64.1(@tanstack/react-query@5.64.1(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@tanstack/query-devtools': 5.62.16
+      '@tanstack/react-query': 5.64.1(react@19.0.0)
+      react: 19.0.0
+
+  '@tanstack/react-query@5.64.1(react@19.0.0)':
+    dependencies:
+      '@tanstack/query-core': 5.64.1
+      react: 19.0.0
 
   '@types/cookie@0.6.0': {}
 

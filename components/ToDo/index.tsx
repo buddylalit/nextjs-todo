@@ -1,92 +1,84 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AddItem } from "../AddItem";
 import { ToDoItems } from "../ToDoItems";
 import { Container, TextInput } from "@mantine/core";
 import { ToDo as ToDoType } from "types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function ToDo() {
-  const [toDoItems, setToDoItems] = useState<ToDoType[]>([]);
   const [searchText, setSearchText] = useState("");
-  const [filteredToDoItems, setFilteredItems] = useState<ToDoType[]>([]);
-  const isApiMocking =
-    (process.env.NEXT_PUBLIC_ENABLE_API_MOCKING || "") === "true";
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
-
-  async function fetchItems() {
-    if (!isApiMocking) return;
-    try {
+  const {
+    data: toDoItems = [],
+    isLoading,
+    isError,
+  } = useQuery<ToDoType[]>({
+    queryKey: ["todos"],
+    queryFn: async () => {
       const response = await fetch("https://codebuddy.co/todos");
-      const data = await response.json();
-      setToDoItems(data);
-      setFilteredItems(data);
-    } catch (error) {
-      console.error("Error fetching items:", error);
-    }
-  }
+      if (!response.ok) {
+        throw new Error("Error fetching todos");
+      }
+      return response.json();
+    },
+  });
 
-  async function handleAddItem(item: string) {
-    if (toDoItems.some((i) => i.name === item)) {
-      return alert(`Item "${item}" already exists.`);
-    }
-
-    if (!isApiMocking) {
-      const newItem = { id: `${toDoItems.length + 1}`, name: item };
-      setToDoItems((prev) => {
-        const updatedItems = [...prev, newItem];
-        setFilteredItems(updatedItems);
-        return updatedItems;
-      });
-      return;
-    }
-
-    try {
-      const res = await fetch("https://codebuddy.co/todos", {
+  const addToDoMutation = useMutation({
+    mutationFn: async (item: string) => {
+      const response = await fetch("https://codebuddy.co/todos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: item, id: "" }),
+        body: JSON.stringify({ name: item }),
       });
-      console.log("res", res);
-      fetchItems();
-    } catch (error) {
-      console.error("Error adding item:", error);
-    }
-  }
+      if (!response.ok) {
+        throw new Error("Error adding todo");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
 
-  async function handleDeleteItem(id: string) {
-    if (!isApiMocking) {
-      setToDoItems((prev) => {
-        const updatedItems = prev.filter((item) => item.id !== id);
-        setFilteredItems(updatedItems);
-        return updatedItems;
-      });
-      return;
-    }
-
-    try {
-      await fetch(`https://codebuddy.co/todos/${id}`, {
+  const deleteToDoMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`https://codebuddy.co/todos/${id}`, {
         method: "DELETE",
       });
-      fetchItems();
-    } catch (error) {
-      console.error("Error deleting item:", error);
-    }
-  }
+      if (!response.ok) {
+        throw new Error("Error deleting todo");
+      }
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+
+  const filteredToDoItems = searchText
+    ? toDoItems.filter((item) =>
+        item.name.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : toDoItems;
 
   function handleFilterItems(value: string) {
     setSearchText(value);
-    if (!value) {
-      setFilteredItems(toDoItems);
-    } else {
-      setFilteredItems(
-        toDoItems.filter((item) =>
-          item.name.toLowerCase().includes(value.toLowerCase())
-        )
-      );
-    }
   }
+
+  function handleAddItem(item: string) {
+    if (toDoItems.some((i) => i.name === item)) {
+      return alert(`Item "${item}" already exists.`);
+    }
+    addToDoMutation.mutate(item);
+  }
+
+  function handleDeleteItem(id: string) {
+    deleteToDoMutation.mutate(id);
+  }
+
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Something went wrong fetching todos.</p>;
 
   return (
     <Container className="p-4 bg-gray-50 rounded-lg shadow-md max-w-md mx-auto my-2">

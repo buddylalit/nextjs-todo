@@ -1,6 +1,7 @@
 import "styles/globals.css";
 import "@mantine/core/styles.css";
 import type { AppProps } from "next/app";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import {
   MantineProvider,
@@ -8,14 +9,15 @@ import {
   MantineTheme,
 } from "@mantine/core";
 import useMSWMockServer from "mocks/hooks";
+import { useState } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
   const shouldRender = useMSWMockServer();
+  const [queryClient] = useState(() => new QueryClient());
   if (shouldRender === false) {
     return null;
   }
 
-  // Define the custom theme with proper typing
   const customTheme: MantineThemeOverride = {
     components: {
       Button: {
@@ -35,8 +37,10 @@ export default function App({ Component, pageProps }: AppProps) {
   };
 
   return (
-    <MantineProvider withStaticClasses withGlobalClasses theme={customTheme}>
-      <Component {...pageProps} />
-    </MantineProvider>
+    <QueryClientProvider client={queryClient}>
+      <MantineProvider withStaticClasses withGlobalClasses theme={customTheme}>
+        <Component {...pageProps} />
+      </MantineProvider>
+    </QueryClientProvider>
   );
 }
