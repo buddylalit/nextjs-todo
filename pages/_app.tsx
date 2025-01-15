@@ -2,6 +2,7 @@ import "styles/globals.css";
 import "@mantine/core/styles.css";
 import type { AppProps } from "next/app";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import {
   MantineProvider,
@@ -38,6 +39,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
+
       <MantineProvider withStaticClasses withGlobalClasses theme={customTheme}>
         <Component {...pageProps} />
       </MantineProvider>
