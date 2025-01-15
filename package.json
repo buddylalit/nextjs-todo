@@ -13,6 +13,7 @@
     "@mantine/hooks": "^7.15.3",
     "@tanstack/react-query": "^5.64.1",
     "@tanstack/react-query-devtools": "^5.64.1",
+    "@tanstack/react-table": "^8.20.6",
     "msw": "^2.7.0",
     "next": "15.1.4",
     "react": "^19.0.0",
