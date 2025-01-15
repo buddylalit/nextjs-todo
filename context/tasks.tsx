@@ -20,24 +20,52 @@ const TaskContext = createContext<TaskContextValues | null>(null);
 
 export function TaskProvider({ children }: PropsWithChildren) {
   const [tasks, setTasks] = useState<TaskFormValues[]>([]);
+  const isApiMocking =
+    (process.env.NEXT_PUBLIC_ENABLE_API_MOCKING || "") === "true";
 
-  const addTask = (task: TaskFormValues) => {
-    setTasks((prev) => [
-      ...prev,
-      {
-        ...task,
-        id: Date.now().toLocaleString(),
-      },
-    ]);
+  const fetchTask = async () => {
+    const response = await fetch("https://codebuddy.co/tasks");
+    const data = await response.json();
+    setTasks(data);
   };
 
-  const updateTask = (updatedTask: TaskFormValues) => {
+  const addTask = async (task: TaskFormValues) => {
+    const _task = {
+      ...task,
+      id: Date.now().toLocaleString(),
+    };
+    if (isApiMocking) {
+      await fetch("https://codebuddy.co/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(_task),
+      });
+      return fetchTask();
+    }
+    setTasks((prev) => [...prev, _task]);
+  };
+
+  const updateTask = async (updatedTask: TaskFormValues) => {
+    if (isApiMocking) {
+      await fetch(`https://codebuddy.co/tasks/${updatedTask.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedTask),
+      });
+      return fetchTask();
+    }
     setTasks((prev) =>
       prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
     );
   };
 
-  const deleteTask = (id: string) => {
+  const deleteTask = async (id: string) => {
+    if (isApiMocking) {
+      await fetch(`https://codebuddy.co/tasks/${id}`, {
+        method: "DELETE",
+      });
+      return fetchTask();
+    }
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 

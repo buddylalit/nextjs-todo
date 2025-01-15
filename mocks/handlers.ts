@@ -1,49 +1,86 @@
 import { http, HttpResponse } from "msw";
-import { ToDo } from "types";
+import { TaskFormValues } from "types/task";
 
-let todos: ToDo[] = [];
+let tasks: TaskFormValues[] = [];
 
 export const handlers = [
-  http.get("https://codebuddy.co/todos", () => {
-    return HttpResponse.json(todos);
+  http.get("https://codebuddy.co/tasks", () => {
+    return HttpResponse.json(tasks);
   }),
-  http.post("https://codebuddy.co/todos", async ({ request }) => {
-    const newTodo = (await request.json()) as Partial<ToDo>;
-    const id = `${todos.length + 1}`;
-    if (!newTodo.name) {
+  http.post("https://codebuddy.co/tasks", async ({ request }) => {
+    const newTask = (await request.json()) as Partial<TaskFormValues>;
+    const id = `${tasks.length + 1}`;
+    if (!newTask.title || !newTask.description) {
       return HttpResponse.json(
-        { message: "Invalid data: 'name' field is required" },
+        {
+          message:
+            "Invalid data: 'title' and 'description' fields are required",
+        },
         { status: 400 }
       );
     }
 
-    todos.push({
+    tasks.push({
       id,
-      name: newTodo.name,
+      title: newTask.title,
+      description: newTask.description,
     });
     return HttpResponse.json({
-      message: "Todo added successfully",
-      todos,
+      message: "Task added successfully",
+      tasks,
     });
   }),
 
-  http.delete("https://codebuddy.co/todos/:id", ({ params }) => {
+  http.put("https://codebuddy.co/tasks/:id", async ({ params, request }) => {
     const { id } = params;
-    const initialLength = todos.length;
-    todos = todos.filter((item) => item.id !== id);
-
-    if (todos.length === initialLength) {
+    const updatedTask = (await request.json()) as Partial<TaskFormValues>;
+    if (!updatedTask.title || !updatedTask.description) {
       return HttpResponse.json(
         {
-          message: `Todo with id ${id} not found`,
+          message:
+            "Invalid data: 'title' and 'description' fields are required",
+        },
+        { status: 400 }
+      );
+    }
+
+    const taskIndex = tasks.findIndex((task) => task.id === id);
+    if (taskIndex === -1) {
+      return HttpResponse.json(
+        { message: `Task with id ${id} not found` },
+        { status: 404 }
+      );
+    }
+
+    tasks[taskIndex] = {
+      ...tasks[taskIndex],
+      title: updatedTask.title,
+      description: updatedTask.description,
+    };
+
+    return HttpResponse.json({
+      message: `Task with id ${id} updated successfully`,
+      task: tasks[taskIndex],
+    });
+  }),
+
+  http.delete("https://codebuddy.co/tasks/:id", ({ params }) => {
+    const { id } = params;
+    const initialLength = tasks.length;
+    tasks = tasks.filter((item) => item.id !== id);
+
+    if (tasks.length === initialLength) {
+      return HttpResponse.json(
+        {
+          message: `Task with id ${id} not found`,
         },
         { status: 404 }
       );
     }
 
     return HttpResponse.json({
-      message: `Todo with id ${id} deleted successfully`,
-      todos,
+      message: `Task with id ${id} deleted successfully`,
+      tasks,
     });
   }),
 ];
