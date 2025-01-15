@@ -3,14 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'msw/node': false,
-      };
-    }
-    return config;
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/tasks",
+        permanent: true,
+      },
+    ];
   },
 };
 
