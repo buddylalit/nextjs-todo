@@ -56,6 +56,23 @@ export function ToDo() {
     },
   });
 
+  const updateToDoMutation = useMutation({
+    mutationFn: async (todo: ToDoType) => {
+      const response = await fetch("https://codebuddy.co/todos", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(todo),
+      });
+      if (!response.ok) {
+        throw new Error("Error updating todo");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+
   const filteredToDoItems = searchText
     ? toDoItems.filter((item) =>
         item.name.toLowerCase().includes(searchText.toLowerCase())
@@ -77,6 +94,10 @@ export function ToDo() {
     deleteToDoMutation.mutate(id);
   }
 
+  function handleUpdateToDo(todo: ToDoType) {
+    updateToDoMutation.mutate(todo);
+  }
+
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Something went wrong fetching todos.</p>;
 
@@ -89,7 +110,11 @@ export function ToDo() {
         placeholder="Search"
       />
       <AddItem onAdd={handleAddItem} />
-      <ToDoItems todos={filteredToDoItems} onDelete={handleDeleteItem} />
+      <ToDoItems
+        todos={filteredToDoItems}
+        onDelete={handleDeleteItem}
+        onEdit={handleUpdateToDo}
+      />
     </Container>
   );
 }

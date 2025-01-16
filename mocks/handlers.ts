@@ -26,6 +26,61 @@ export const handlers = [
       todos,
     });
   }),
+  http.put("https://codebuddy.co/todos", async ({ request }) => {
+    try {
+      const updatedTodo = (await request.json()) as Partial<ToDo>;
+      if (!updatedTodo || !updatedTodo.id) {
+        return HttpResponse.json(
+          {
+            message: "Invalid request: 'id' is required to update a todo.",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
+      let todoUpdated = false;
+      todos = todos.map((todo) => {
+        if (todo.id === updatedTodo.id) {
+          todoUpdated = true;
+          return { ...todo, ...updatedTodo };
+        }
+        return todo;
+      });
+
+      if (!todoUpdated) {
+        return HttpResponse.json(
+          {
+            message: `Todo with id '${updatedTodo.id}' not found.`,
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
+      return HttpResponse.json(
+        {
+          message: "Todo updated successfully.",
+          todos,
+        },
+        {
+          status: 200,
+        }
+      );
+    } catch (error) {
+      console.error("Error updating todo:", error);
+      return HttpResponse.json(
+        {
+          message: "An error occurred while updating the todo.",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+  }),
 
   http.delete("https://codebuddy.co/todos/:id", ({ params }) => {
     const { id } = params;
