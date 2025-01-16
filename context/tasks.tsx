@@ -11,6 +11,7 @@ import { TaskFormValues } from "types/task";
 export interface TaskContextValues {
   tasks: TaskFormValues[];
   addTask: (task: TaskFormValues) => void;
+  getTask: (id: string) => Promise<TaskFormValues>;
   updateTask: (task: TaskFormValues) => void;
   deleteTask: (id: string) => void;
   setTasks: Dispatch<SetStateAction<TaskFormValues[]>>;
@@ -27,6 +28,13 @@ export function TaskProvider({ children }: PropsWithChildren) {
     const response = await fetch("https://codebuddy.co/tasks");
     const data = await response.json();
     setTasks(data);
+  };
+  const getTask = async (id: string) => {
+    if (isApiMocking) {
+      const response = await fetch(`https://codebuddy.co/tasks/${id}`);
+      return await response.json();
+    }
+    return tasks.find((task) => task.id === id);
   };
 
   const addTask = async (task: TaskFormValues) => {
@@ -46,6 +54,7 @@ export function TaskProvider({ children }: PropsWithChildren) {
   };
 
   const updateTask = async (updatedTask: TaskFormValues) => {
+    console.log("updated task", updateTask);
     if (isApiMocking) {
       await fetch(`https://codebuddy.co/tasks/${updatedTask.id}`, {
         method: "PUT",
@@ -71,7 +80,7 @@ export function TaskProvider({ children }: PropsWithChildren) {
 
   return (
     <TaskContext.Provider
-      value={{ tasks, addTask, updateTask, deleteTask, setTasks }}
+      value={{ tasks, addTask, updateTask, deleteTask, setTasks, getTask }}
     >
       {children}
     </TaskContext.Provider>

@@ -1,13 +1,22 @@
 import { TaskForm } from "components/TaskForm";
 import { useTasks } from "context/tasks";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { TaskFormValues } from "types/task";
 
 export default function EditTask() {
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask, getTask } = useTasks();
+  const [task, setTask] = useState<TaskFormValues | undefined>();
   const router = useRouter();
   const { id } = router.query;
-  const task = tasks.find((_task) => _task.id === id);
+
+  useEffect(() => {
+    if (!id || typeof id !== "string") return;
+    (async () => {
+      const _task = await getTask(id);
+      setTask(_task);
+    })();
+  }, [id]);
 
   const handleSubmit = (data: TaskFormValues) => {
     updateTask(data);

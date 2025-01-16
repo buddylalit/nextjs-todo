@@ -7,6 +7,10 @@ export const handlers = [
   http.get("https://codebuddy.co/tasks", () => {
     return HttpResponse.json(tasks);
   }),
+  http.get("https://codebuddy.co/tasks/:id", ({ params }) => {
+    const { id } = params;
+    return HttpResponse.json(tasks.find((task) => task.id === id));
+  }),
   http.post("https://codebuddy.co/tasks", async ({ request }) => {
     const newTask = (await request.json()) as Partial<TaskFormValues>;
     const id = `${tasks.length + 1}`;
