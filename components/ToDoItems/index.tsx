@@ -13,8 +13,6 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
   SortingState,
   PaginationState,
@@ -25,6 +23,8 @@ export interface ToDoItemsProps {
   todos: ToDo[];
   onDelete: (id: string) => void;
   onEdit: (todo: ToDo) => void;
+  onFetchData: (pagination: PaginationState, sorting: SortingState) => void;
+  totalItems: number;
 }
 
 const columnHelper = createColumnHelper<ToDo>();
@@ -33,6 +33,8 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
   todos,
   onDelete,
   onEdit,
+  onFetchData,
+  totalItems,
 }) => {
   const [editingTodo, setEditingTodo] = useState<ToDo | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -79,23 +81,28 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
   );
 
   const table = useReactTable({
-    data: useMemo(() => {
-      const start = pagination.pageIndex * pagination.pageSize;
-      const end = start + pagination.pageSize;
-      return todos.slice(start, end);
-    }, [todos, pagination.pageIndex, pagination.pageSize]),
+    data: todos,
     columns,
     state: {
       pagination,
       sorting,
     },
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
+    onPaginationChange: (newPagination) => {
+      const directPagination = newPagination as PaginationState;
+      setPagination(directPagination);
+      onFetchData(directPagination, sorting);
+    },
+    onSortingChange: (newSorting) => {
+      const directSorting = newSorting as SortingState;
+      setSorting(directSorting);
+      const resetPagination = { ...pagination, pageIndex: 0 };
+      setPagination(resetPagination);
+      onFetchData(resetPagination, directSorting);
+    },
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    pageCount: Math.ceil(todos.length / pagination.pageSize),
+    manualSorting: true,
+    pageCount: Math.ceil(totalItems / pagination.pageSize),
   });
 
   return (
@@ -103,7 +110,6 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
       <h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">
         To-Do List
       </h2>
-
       <MantineTable striped highlightOnHover>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -154,11 +160,13 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
       </MantineTable>
       <div className="flex items-center justify-between mt-4">
         <Pagination
-          total={Math.ceil(todos.length / pagination.pageSize)}
+          total={Math.ceil(totalItems / pagination.pageSize)}
           value={pagination.pageIndex + 1}
-          onChange={(page) =>
-            setPagination((prev) => ({ ...prev, pageIndex: page - 1 }))
-          }
+          onChange={(page) => {
+            const newPagination = { ...pagination, pageIndex: page - 1 };
+            setPagination(newPagination);
+            onFetchData(newPagination, sorting);
+          }}
         />
         <Select
           data={[
@@ -167,13 +175,11 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
             { value: "20", label: "20 per page" },
           ]}
           value={String(pagination.pageSize)}
-          onChange={(value) =>
-            setPagination((prev) => ({
-              ...prev,
-              pageSize: Number(value),
-              pageIndex: 0,
-            }))
-          }
+          onChange={(value) => {
+            const newPagination = { pageIndex: 0, pageSize: Number(value) };
+            setPagination(newPagination);
+            onFetchData(newPagination, sorting);
+          }}
         />
       </div>
       <Modal
