@@ -16,6 +16,6 @@ type Story = StoryObj<typeof meta>;
 
 export const AddItems: Story = {
   args: {
-    onAdd: action("itemAdded"),
+    // onAdd: action("itemAdded"),
   },
 };
