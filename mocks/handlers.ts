@@ -16,7 +16,6 @@ export const handlers = [
         { status: 400 }
       );
     }
-
     todos.push({
       id,
       name: newTodo.name,
@@ -81,7 +80,6 @@ export const handlers = [
       );
     }
   }),
-
   http.delete("https://codebuddy.co/todos/:id", ({ params }) => {
     const { id } = params;
     const initialLength = todos.length;

@@ -1,120 +1,70 @@
-import { useState } from "react";
-import { AddItem } from "../AddItem";
-import { ToDoItems } from "../ToDoItems";
-import { Container, TextInput } from "@mantine/core";
-import { ToDo as ToDoType } from "types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TextInput, Button, Paper, Title, Container } from "@mantine/core";
+import { useStore } from "stores/useStore";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+const schema = yup.object().shape({
+  name: yup
+    .string()
+    .required("Task name is required")
+    .max(100, "Task name cannot exceed 100 characters"),
+});
 
 export function ToDo() {
-  const [searchText, setSearchText] = useState("");
-  const queryClient = useQueryClient();
-
+  const { addToDo, deleteToDo, todos } = useStore();
   const {
-    data: toDoItems = [],
-    isLoading,
-    isError,
-  } = useQuery<ToDoType[]>({
-    queryKey: ["todos"],
-    queryFn: async () => {
-      const response = await fetch("https://codebuddy.co/todos");
-      if (!response.ok) {
-        throw new Error("Error fetching todos");
-      }
-      return response.json();
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
     },
   });
 
-  const addToDoMutation = useMutation({
-    mutationFn: async (item: string) => {
-      const response = await fetch("https://codebuddy.co/todos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: item }),
-      });
-      if (!response.ok) {
-        throw new Error("Error adding todo");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-    },
-  });
-
-  const deleteToDoMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await fetch(`https://codebuddy.co/todos/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        throw new Error("Error deleting todo");
-      }
-      return id;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-    },
-  });
-
-  const updateToDoMutation = useMutation({
-    mutationFn: async (todo: ToDoType) => {
-      const response = await fetch("https://codebuddy.co/todos", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(todo),
-      });
-      if (!response.ok) {
-        throw new Error("Error updating todo");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-    },
-  });
-
-  const filteredToDoItems = searchText
-    ? toDoItems.filter((item) =>
-        item.name.toLowerCase().includes(searchText.toLowerCase())
-      )
-    : toDoItems;
-
-  function handleFilterItems(value: string) {
-    setSearchText(value);
-  }
-
-  function handleAddItem(item: string) {
-    if (toDoItems.some((i) => i.name === item)) {
-      return alert(`Item "${item}" already exists.`);
-    }
-    addToDoMutation.mutate(item);
-  }
-
-  function handleDeleteItem(id: string) {
-    deleteToDoMutation.mutate(id);
-  }
-
-  function handleUpdateToDo(todo: ToDoType) {
-    updateToDoMutation.mutate(todo);
-  }
-
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Something went wrong fetching todos.</p>;
+  const onSubmit = (data: { name: string }) => {
+    addToDo({ id: Date.now().toString(), name: data.name });
+    reset();
+  };
 
   return (
-    <Container className="p-4 bg-gray-50 rounded-lg shadow-md max-w-md mx-auto my-2">
-      <TextInput
-        className="my-2"
-        value={searchText}
-        onChange={(e) => handleFilterItems(e.target.value)}
-        placeholder="Search"
-      />
-      <AddItem onAdd={handleAddItem} />
-      <ToDoItems
-        todos={filteredToDoItems}
-        onDelete={handleDeleteItem}
-        onEdit={handleUpdateToDo}
-      />
+    <Container size="sm">
+      <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+        <Title order={3} className="mb-4">
+          To-Do List
+        </Title>
+        <form onSubmit={handleSubmit(onSubmit)} className="mb-4">
+          <TextInput
+            label="New Task"
+            placeholder="Enter a task"
+            {...register("name")}
+            error={errors.name?.message}
+            className="mb-2"
+          />
+          <Button type="submit" fullWidth>
+            Add Task
+          </Button>
+        </form>
+        <ul className="list-disc pl-5">
+          {todos.map((todo) => (
+            <li key={todo.id} className="mb-2 flex justify-between">
+              {todo.name}
+              <Button
+                variant="light"
+                color="red"
+                size="xs"
+                onClick={() => deleteToDo(todo.id)}
+                className="ml-2"
+              >
+                Delete
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </Paper>
     </Container>
   );
 }
