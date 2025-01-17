@@ -12,6 +12,24 @@ import {
 import useMSWMockServer from "mocks/hooks";
 import { useState } from "react";
 
+export const mantineTheme: MantineThemeOverride = {
+  components: {
+    Button: {
+      styles: (theme: MantineTheme) => ({
+        root: {
+          "&.delete-todo": {
+            backgroundColor: theme.colors.red[6],
+            color: theme.white,
+            "&:hover": {
+              backgroundColor: theme.colors.red[7],
+            },
+          },
+        },
+      }),
+    },
+  },
+};
+
 export default function App({ Component, pageProps }: AppProps) {
   const shouldRender = useMSWMockServer();
   const [queryClient] = useState(() => new QueryClient());
@@ -19,29 +37,11 @@ export default function App({ Component, pageProps }: AppProps) {
     return null;
   }
 
-  const customTheme: MantineThemeOverride = {
-    components: {
-      Button: {
-        styles: (theme: MantineTheme) => ({
-          root: {
-            "&.delete-todo": {
-              backgroundColor: theme.colors.red[6],
-              color: theme.white,
-              "&:hover": {
-                backgroundColor: theme.colors.red[7],
-              },
-            },
-          },
-        }),
-      },
-    },
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
 
-      <MantineProvider withStaticClasses withGlobalClasses theme={customTheme}>
+      <MantineProvider withStaticClasses withGlobalClasses theme={mantineTheme}>
         <Component {...pageProps} />
       </MantineProvider>
     </QueryClientProvider>
