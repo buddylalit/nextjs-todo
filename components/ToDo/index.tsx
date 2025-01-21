@@ -24,8 +24,6 @@ export function ToDo() {
     { id: sortBy, desc: sortOrder === "desc" },
   ]);
 
-  console.log("size", pageSize);
-
   useEffect(() => {
     try {
       const params = new URLSearchParams();

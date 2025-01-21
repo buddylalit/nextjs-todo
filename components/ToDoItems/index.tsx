@@ -45,7 +45,7 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
   const [pagination, setPagination] = useState<PaginationState>(
     props.pagination
   );
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const columns: ColumnDef<ToDo, any>[] = useMemo(
     () => [
@@ -108,6 +108,7 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
     manualSorting: true,
     pageCount: Math.ceil(totalItems / pagination.pageSize),
   });
+
   function renderTable() {
     if (isLoading) {
       return (
@@ -134,15 +135,7 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
                       <Button
                         size="xs"
                         variant="subtle"
-                        onClick={() =>
-                          header.column.toggleSorting(
-                            header.column.getIsSorted() === "asc"
-                              ? false
-                              : header.column.getIsSorted() === "desc"
-                              ? undefined
-                              : true
-                          )
-                        }
+                        onClick={header.column.getToggleSortingHandler()}
                       >
                         {header.column.getIsSorted()
                           ? header.column.getIsSorted() === "asc"
