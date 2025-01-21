@@ -123,9 +123,6 @@ export function ToDo() {
   const handleDeleteItem = (id: string) => deleteToDoMutation.mutate(id);
   const handleUpdateToDo = (todo: ToDoType) => updateToDoMutation.mutate(todo);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Something went wrong fetching todos.</p>;
-
   return (
     <Container className="p-4 bg-gray-50 rounded-lg shadow-md max-w-md mx-auto my-2">
       <TextInput
@@ -136,8 +133,9 @@ export function ToDo() {
       />
       <AddItem onAdd={handleAddItem} />
       <ToDoItems
-        todos={data.items}
-        totalItems={data.total}
+        todos={data?.items}
+        totalItems={data?.total}
+        isLoading={isLoading}
         onDelete={handleDeleteItem}
         onEdit={handleUpdateToDo}
         onFetchData={(newPagination, newSorting) => {
