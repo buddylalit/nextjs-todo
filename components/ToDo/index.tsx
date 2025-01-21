@@ -4,7 +4,7 @@ import { ToDoItems } from "../ToDoItems";
 import { Container, TextInput } from "@mantine/core";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ToDo as ToDoType } from "types";
-import { SortingState } from "@tanstack/react-table";
+import { PaginationState, SortingState } from "@tanstack/react-table";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 
@@ -23,6 +23,8 @@ export function ToDo() {
   const [sorting, setSorting] = useState<SortingState>([
     { id: sortBy, desc: sortOrder === "desc" },
   ]);
+
+  console.log("size", pageSize);
 
   useEffect(() => {
     try {
@@ -123,6 +125,20 @@ export function ToDo() {
   const handleDeleteItem = (id: string) => deleteToDoMutation.mutate(id);
   const handleUpdateToDo = (todo: ToDoType) => updateToDoMutation.mutate(todo);
 
+  const handleFetchData = (
+    pagination: PaginationState,
+    sorting: SortingState
+  ) => {
+    setPagination(pagination);
+    setSorting(sorting);
+    const params = new URLSearchParams();
+    params.set("page", String(pagination.pageIndex));
+    params.set("pageSize", String(pagination.pageSize));
+    params.set("sortBy", sorting[0]?.id || "id");
+    params.set("sortOrder", sorting[0]?.desc ? "desc" : "asc");
+    window.history.pushState({}, "", `?${params.toString()}`);
+  };
+
   return (
     <Container className="p-4 bg-gray-50 rounded-lg shadow-md max-w-md mx-auto my-2">
       <TextInput
@@ -138,15 +154,10 @@ export function ToDo() {
         isLoading={isLoading}
         onDelete={handleDeleteItem}
         onEdit={handleUpdateToDo}
-        onFetchData={(newPagination, newSorting) => {
-          setPagination(newPagination);
-          setSorting(newSorting);
-          const params = new URLSearchParams();
-          params.set("page", String(newPagination.pageIndex));
-          params.set("pageSize", String(newPagination.pageSize));
-          params.set("sortBy", newSorting[0]?.id || "id");
-          params.set("sortOrder", newSorting[0]?.desc ? "desc" : "asc");
-          window.history.pushState({}, "", `?${params.toString()}`);
+        onFetchData={handleFetchData}
+        pagination={{
+          pageIndex,
+          pageSize,
         }}
       />
     </Container>

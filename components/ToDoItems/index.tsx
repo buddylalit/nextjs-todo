@@ -27,6 +27,7 @@ export interface ToDoItemsProps {
   onFetchData: (pagination: PaginationState, sorting: SortingState) => void;
   totalItems: number;
   isLoading: boolean;
+  pagination: PaginationState;
 }
 
 const columnHelper = createColumnHelper<ToDo>();
@@ -38,12 +39,12 @@ export const ToDoItems: React.FC<ToDoItemsProps> = ({
   onEdit,
   onFetchData,
   totalItems,
+  ...props
 }) => {
   const [editingTodo, setEditingTodo] = useState<ToDo | null>(null);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
-  });
+  const [pagination, setPagination] = useState<PaginationState>(
+    props.pagination
+  );
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns: ColumnDef<ToDo, any>[] = useMemo(
